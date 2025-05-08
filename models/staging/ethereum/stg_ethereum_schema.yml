@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: stg_ethereum_rewards
+    description: >
+      Standardize column names, clean, de-duplicated table of ethereum_rewards_raw with one canonical
+      reward_wei column and validated reward_type values.
+    columns:
+      - name: validator
+        tests:
+          - not_null
+      - name: reward_type
+        tests:
+          - accepted_values:
+              values: ref('reward_type_reference')
+      - name: block_number
+        tests: [not_null]
+      - name: reward_wei
+        tests: [not_null]
+
+    tests:
+      - unique:
+          column_names: ["validator", "reward_type", "block_number"]

@@ -25,8 +25,8 @@ dbt_project/
 │   │   ├── ethereum/
 │   │   │   ├── _staging_ethereum__sources.yml
 │   │   │   ├── stg_ethereum_rewards.sql
-│   │   │   └── stg_ethereum__schema.yml
-│   │   └── _staging__generic_tests.yml
+│   │   │   └── stg_ethereum_schema.yml
+│   │   └── staging_generic_tests.yml
 │   ├── intermediate/         # Intermediate tables
 │   │   ├── ethereum/
 │   │   │   ├── int_ethereum_rewards.sql
@@ -41,7 +41,7 @@ dbt_project/
 │   ├── data/                 # CSV fixtures for dbt seed+tests
 │   └── test_rewards.py
 ├── seeds/                    # Reference seeds
-├── snapshots/                # Not required for this task (placeholder)
+├── snapshots/                # Slowly-changing dimensions
 ├── analyses/                 # Ad-hoc or interview write-ups
 └── README.md                 # How to run locally (dev-container)
 ```
