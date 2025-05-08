@@ -1,0 +1,56 @@
+version: 2
+
+sources:
+  - name: ethereum
+    database: figment_db
+    schema: sources
+    tables:
+      - name: ethereum_rewards_raw
+        columns:
+          - name: network
+            data_type: text
+            description: The network of the current blockchain data.
+
+          - name: protocol
+            data_type: text
+            description: The blockchain protocol name.
+
+          - name: type
+            data_type: text
+            description: The type of data. This should always be `rewards`.
+
+          - name: reward_type
+            data_type: text
+            description: The reward type. Accepted values ['proposal', 'attestation', 'sync_committee', 'slashing'].
+
+          - name: validator
+            data_type: text
+            description: The validator address receiving the reward.
+
+          - name: block
+            data_type: numeric(38,0)
+            description: The block number when the rewards was issued.
+
+          - name: claimed_reward_currency
+            data_type: numeric(38,0)
+            description: The claimed reward currency. Note that the claimed_reward_exp need to be used in order to have the right reward per currency type. See `claimed_reward_exp` description for more info.
+
+          - name: claimed_reward_exp
+            data_type: numeric(38,0)
+            description: Exposant value that of the reward. If we have 9 it means that to get the `claimed_reward_numeric` into the `claimed_reward_currency` we need to `claimed_rewards_numeric * 10 exp `claimed_reward_exp`.
+
+          - name: claimed_reward_numeric
+            data_type: numeric(38,0)
+            description: The claimed reward value.
+
+          - name: claimed_reward_text
+            data_type: numeric(38,0)
+            description: The rewards amount with it's currency in a text format.
+
+          - name: processed_at
+            data_type: timestamptz
+            description: A timestamp representing when the data was ingested by a micro service and save as a CSV.
+
+          - name: timestamp
+            data_type: timestamptz
+            description: Timestamp when the block was created on the blockchain.

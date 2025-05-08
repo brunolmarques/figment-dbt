@@ -1,0 +1,12 @@
+takehome_test:
+  outputs:
+    dev:
+      dbname: figment_db
+      host: 127.0.0.1
+      pass: postgres
+      port: 5432
+      schema: input
+      threads: 4
+      type: postgres
+      user: postgres
+  target: dev
