@@ -4,10 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-dbt-core = "==1.8.5"
-dbt-postgres = "==1.8.2"
+dbt-core = "~=1.7.0"
+dbt-postgres = "*"
 
 [dev-packages]
+pytest = "*"
+black = "*"
+flake8 = "*"
 
 [requires]
 python_version = "3.11"

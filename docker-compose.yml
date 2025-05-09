@@ -2,6 +2,15 @@
 version: '3.9'
 
 services:
+  workspace:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile   # <- your original Dockerfile
+    volumes:
+      - .:/workspace:cached
+    command: sleep infinity
+    user: vscode
+    depends_on: [db]
 
   db:
     build:
@@ -10,7 +19,6 @@ services:
     restart: always
     # set shared memory limit when using docker-compose
     shm_size: 128mb
-
     volumes:
       - ./data:/home/data
     ports:

@@ -11,13 +11,25 @@ models:
           - not_null
       - name: reward_type
         tests:
-          - accepted_values:
-              values: ref('reward_type_reference')
+          - relationships:
+              to: ref('reward_type_reference')
+              field: reward_type
       - name: block_number
         tests: [not_null]
       - name: reward_wei
+        tests: [not_null]
+      - name: processed_at
         tests: [not_null]
 
     tests:
       - unique:
           column_names: ["validator", "reward_type", "block_number"]
+      # Generic tests
+      - dbt_expectations.expect_table_row_count_to_be_greater_than:
+          value: 0
+          severity: warn
+      - dbt_utils.recency:
+          datepart: day
+          field: processed_at
+          interval: 2
+          severity: warn

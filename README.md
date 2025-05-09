@@ -1,4 +1,63 @@
-# This is a take home test from Figment.
+# Figment Take-Home Test
+
+Minimal dbt + Postgres stack with Dev Container, unit-tests and CI.
+
+---
+
+## 🚀 Quick Start (VS Code Dev Container)
+
+1. Press **F1 → “Dev Containers: Reopen in Container”**
+   VS Code builds `.devcontainer/Dockerfile`, which already includes:
+
+   * Python 3.11, **pipenv**, dbt 1.7 +, pytest
+   * Postgres service wired to `profiles.yml`
+
+2. When the build finishes the integrated terminal drops you into an
+   activated **Pipenv** environment.
+   Run your usual commands:
+
+   ```bash
+   pytest -q                       # Python unit-tests
+   dbt build --full-refresh        # seeds → run → test
+   ```
+
+That’s it—no extra installs; everything is baked into the image.
+
+---
+
+## ⚙️ CI
+
+* **Workflow:** `.github/workflows/ci.yml`
+* **Steps:** checkout → build Dev Container → `pytest` → `dbt build --warn-error`
+* Passes or blocks every push / pull-request to `main`.
+
+---
+
+## 🗂️ Key Files
+
+```
+.devcontainer/   # Dockerfile + devcontainer.json (dependencies baked in)
+docker/          # Postgres build context + init script
+docker-compose.yml
+models/          # staging/ → intermediate/ → marts/
+macros/          # reusable Jinja + generic tests
+tests/           # pytest specs + CSV fixtures
+seeds/
+.github/workflows/ci.yml
+```
+
+---
+
+## 🔧 Common Commands
+
+```bash
+dbt build                        # compile + run + test
+dbt build -s staging.            # only staging layer
+pytest -q                        # run unit-tests
+```
+
+Everything is idempotent and atomic—rerun at will.
+
 
 ## Project Structure
 ```

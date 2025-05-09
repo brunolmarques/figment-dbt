@@ -1,0 +1,25 @@
+{
+  "name": "takehome-test",
+  "dockerComposeFile": [
+    "../docker-compose.yml"
+  ],
+  "service": "workspace",
+  "workspaceFolder": "/workspace",
+  "runServices": [
+    "db"
+  ],
+  "updateRemoteUserUID": "always",
+  "forwardPorts": [
+    5432
+  ],
+  "postCreateCommand": "./.devcontainer/dev-init.sh",
+  // Handy editor extensions (optional — delete if you want it even smaller)
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "bastienboutonnet.vscode-dbt"
+      ]
+    }
+  }
+}
