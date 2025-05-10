@@ -1,24 +1,40 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "[dev-init] Cleaning any stale virtualenv…"
-# Flush any Pipenv metadata and delete the zombie .venv directory
+#---------------------------------------------------------------------------
+# 1. Clean & recreate virtualenv
+#---------------------------------------------------------------------------
+echo "🧹  Removing any stale virtualenv…"
 pipenv --rm 2>/dev/null || true
 rm -rf .venv
 
-echo "[dev-init] Creating a fresh in-project virtualenv…"
-# Force creation with the container's python3
 export PIPENV_VENV_IN_PROJECT=1
 export PIPENV_IGNORE_VIRTUALENVS=1
+
+echo "🐍  Creating a fresh in-project virtualenv…"
 pipenv --python "$(command -v python3)"
 
-echo "[dev-init] Installing project dependencies…"
+#---------------------------------------------------------------------------
+# 2.  Install Python & dbt deps
+#---------------------------------------------------------------------------
+echo "📦  Installing project dependencies…"
 pipenv install --dev
 
-# Optional: pull dbt packages if this is a dbt repo
 if [[ -f dbt_project.yml ]]; then
-  echo "[dev-init] Running 'dbt deps'…"
+  echo "📦  Pulling dbt packages (dbt deps)…"
   pipenv run dbt deps
 fi
 
-echo "[dev-init] All done ✔"
+#---------------------------------------------------------------------------
+# 3.  Wait for Postgres to be ready
+#---------------------------------------------------------------------------
+echo "⏳  Waiting for Postgres to accept connections…"
+until pg_isready -h db -p 5432 -U figment >/dev/null 2>&1; do
+  sleep 2
+done
+echo "✅  Postgres is up"
+
+#---------------------------------------------------------------------------
+# 4.  Done
+#---------------------------------------------------------------------------
+echo "🎉  Dev-container init complete"

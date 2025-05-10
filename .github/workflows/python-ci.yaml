@@ -2,7 +2,8 @@ name: CI
 
 on:
   push:
-    branches: [ main, trunk, master ]
+    branches: [ main, master ]
+    tags: [ "v*" ]
   pull_request:
     branches: [ "**" ]
 
@@ -14,54 +15,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: ⬇️  Checkout repo
+      - name: ⬇️ Checkout repo
         uses: actions/checkout@v4
 
-      # ------------------------------------------------------------------
-      # Path-based check: is there a Dev-Container?
-      # ------------------------------------------------------------------
-      - name: ⚙️  Run inside Dev Container
-        id: in_devcontainer
-        if: ${{ hashFiles('.devcontainer/devcontainer.json') != '' }}
+      # Spin-up the Dev Container (and the docker-compose stack it references),
+      # then run our test commands *inside* that container.
+      - name: 🐳 Build & test in Dev Container
         uses: devcontainers/ci@v0.3
         with:
-          # Any Docker Compose defined in `.devcontainer` or at repo root
-          # is automatically brought up by the Dev Container CLI.
           runCmd: |
             echo "🧪 Running unit tests"
             pipenv run pytest -q
 
-            echo "🏗️  Building & testing dbt models"
-            pipenv run dbt build --profiles-dir . --warn-error --select state:modified+
-
-      # ------------------------------------------------------------------
-      # Fallback path — no Dev Container spec found
-      # ------------------------------------------------------------------
-      - name: ⚙️  Set up Python (fallback path)
-        if: ${{ steps.in_devcontainer.outcome == 'skipped' }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-
-      - name: 🚀 Install Pipenv & project deps
-        if: ${{ steps.in_devcontainer.outcome == 'skipped' }}
-        run: |
-          python -m pip install --upgrade pip pipenv
-          pipenv install --dev --deploy
-
-      - name: 🐘 Start Postgres + friends via docker-compose
-        if: ${{ steps.in_devcontainer.outcome == 'skipped' }}
-        run: |
-          docker compose up -d
-          echo "⏳ Waiting for Postgres to become ready…"
-          until docker exec $(docker compose ps -q postgres) pg_isready -U postgres > /dev/null 2>&1; do sleep 2; done
-
-      - name: 🧪 Run unit & dbt tests (fallback path)
-        if: ${{ steps.in_devcontainer.outcome == 'skipped' }}
-        env:
-          DBT_PROFILES_DIR: .
-        run: |
-          pipenv run pytest -q
-          pipenv run dbt deps
-          pipenv run dbt seed
-          pipenv run dbt build --warn-error --select state:modified+
+            echo "🏗️ Building & testing dbt models"
+            pipenv run dbt deps        # pull dbt package deps
+            pipenv run dbt seed        # load any seed files
+            pipenv run dbt build \
+              --profiles-dir . \
+              --warn-error            # fail on warnings

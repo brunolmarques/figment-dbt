@@ -6,7 +6,13 @@ Minimal dbt + Postgres stack with Dev Container, unit-tests and CI.
 
 ## 🚀 Quick Start (VS Code Dev Container)
 
-1. Press **F1 → “Dev Containers: Reopen in Container”**
+### Requirements
+- Visual Studio Code with "Dev Containers" extension
+- Docker Desktop (macOS/Windows) or Docker Engine (Linux)
+- Docker Compose
+- Port 5432 available for PostgreSQL
+
+1. Press **F1 → "Dev Containers: Reopen in Container"** or **select the icon on the left bottom corner of VS Code → "Open in Container"**  
    VS Code builds `.devcontainer/Dockerfile`, which already includes:
 
    * Python 3.11, **pipenv**, dbt 1.7 +, pytest
@@ -21,8 +27,8 @@ Minimal dbt + Postgres stack with Dev Container, unit-tests and CI.
    pipenv run dbt build --full-refresh        # seeds → run → test
    ```
 
-That’s it—no extra installs; everything is baked into the image.
-Devcontainer also initiates the Postegres DB and runs the `init_db.sh` script.
+That's it—no extra installs; everything is baked into the image.
+Devcontainer also initiates the Postegres DB.
 
 ---
 
