@@ -23,10 +23,9 @@ Minimal dbt + Postgres stack with Dev Container, unit-tests and CI.
    Run your usual commands:
 
    ```bash
-   pipenv run dbt test                        # Dbt unit and data tests
-   pipenv run dbt build                       # seeds → run → test
-   pipenv run dbt docs generate 
-      && pipenv run dbt docs serve            # Explore lineage: ethereum_rewards_raw ➜ stg_* ➜ int_* ➜ fct_*.
+   make test                        # Dbt unit and data tests
+   make build                       # seeds → run → test
+   make docs                        # Explore lineage: ethereum_rewards_raw ➜ stg_* ➜ int_* ➜ fct_*.
 
    ```
 

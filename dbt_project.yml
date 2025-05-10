@@ -24,15 +24,11 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   takehome_test:
-    +on_schema_change: append_new_columns  # Global default
     staging:
       +materialized: table
-      +on_schema_change: append_new_columns
 
     intermediate:
       +materialized: table
-      +on_schema_change: append_new_columns
 
     marts:
       +materialized: table
-      +on_schema_change: append_new_columns
