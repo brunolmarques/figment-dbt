@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: fct_ethereum_rewards_daily
+    description: >
+      Daily fact table of Ethereum validator rewards.
+      One row per validator - reward_type - date with end-of-day balance.
+    config:
+      contract:
+        enforced: true          # fails build if columns/types drift
+    columns:
+      - name: validator
+        description: "Beacon-chain validator index/address."
+        tests: [not_null]
+      - name: reward_type
+        description: "proposal | attestation | sync_committee | slashing"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['proposal','attestation','sync_committee','slashing']
+      - name: reward_date
+        description: "UTC calendar date of the reward (partition key)."
+        tests: [not_null]
+      - name: reward_eth
+        description: "Total reward earned on that day, in ETH."
+        tests: [not_null]
+      - name: balance_eth_eod
+        description: "Cumulative balance for the validator at end of day."
+        tests: [not_null]
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            ['validator','reward_type','reward_date']

@@ -42,7 +42,7 @@ Development of `dbt-expectations` (and `dbt-date`) is funded by our amazing [spo
 
 ## Install
 
-`dbt-expectations` currently supports `dbt 1.2.x` or higher.
+`dbt-expectations` currently supports `dbt 1.7.x` or higher.
 
 Check [dbt package hub](https://hub.getdbt.com/calogica/dbt_expectations/latest/) for the latest installation instructions, or [read the docs](https://docs.getdbt.com/docs/package-management) for more information on installing packages.
 
@@ -51,7 +51,7 @@ Include in `packages.yml`
 ```yaml
 packages:
   - package: calogica/dbt_expectations
-    version: [">=0.9.0", "<0.10.0"]
+    version: [">=0.10.0", "<0.11.0"]
     # <see https://github.com/calogica/dbt-expectations/releases/latest> for the latest version tag
 ```
 
@@ -222,7 +222,7 @@ models: # or seeds:
 
 ### [expect_table_aggregation_to_equal_other_table](macros/schema_tests/table_shape/expect_table_aggregation_to_equal_other_table.sql)
 
-Except an (optionally grouped) expression to match the same (or optionally other) expression in a different table.
+Expect an (optionally grouped) expression to match the same (or optionally other) expression in a different table.
 
 *Applies to:* Model, Seed, Source
 
@@ -566,6 +566,7 @@ tests:
       row_condition: "id is not null" # (Optional)
       strictly: true # (Optional for comparison operator. Default is 'true', and it uses '>'. If set to 'false' it uses '>='.)
       group_by: [group_id, other_group_id, ...] # (Optional)
+      step: 1 # (Optional. If set, it requires the difference between values to be exactly this step. Requires numeric columns.)
 ```
 
 ### [expect_column_values_to_be_decreasing](macros/schema_tests/column_values_basic/expect_column_values_to_be_decreasing.sql)
@@ -583,6 +584,7 @@ tests:
       row_condition: "id is not null" # (Optional)
       strictly: true # (Optional for comparison operator. Default is 'true' and it uses '<'. If set to 'false', it uses '<='.)
       group_by: [group_id, other_group_id, ...] # (Optional)
+      step: 1 # (Optional. If set, it requires the difference between values to be exactly this step. Requires numeric columns.)
 ```
 
 ### [expect_column_value_lengths_to_be_between](macros/schema_tests/string_matching/expect_column_value_lengths_to_be_between.sql)

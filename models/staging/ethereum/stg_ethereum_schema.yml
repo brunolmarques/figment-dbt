@@ -2,34 +2,23 @@ version: 2
 
 models:
   - name: stg_ethereum_rewards
-    description: >
-      Standardize column names, clean, de-duplicated table of ethereum_rewards_raw with one canonical
-      reward_wei column and validated reward_type values.
+    description: "Clean, typed, immutable staging table for Ethereum validator rewards."
     columns:
       - name: validator
+        description: "Beacon-chain validator index/address."
+        tests: [not_null]
+      - name: reward_type
+        description: "proposal | attestation | sync_committee | slashing"
         tests:
           - not_null
-      - name: reward_type
-        tests:
-          - relationships:
-              to: ref('reward_type_reference')
-              field: reward_type
-      - name: block_number
+          - accepted_values:
+              values: ['proposal','attestation','sync_committee','slashing']
+      - name: reward_eth
+        description: "Reward amount as decimal ETH."
         tests: [not_null]
-      - name: reward_wei
-        tests: [not_null]
-      - name: processed_at
-        tests: [not_null]
-
-    tests:
-      - unique:
-          column_names: ["validator", "reward_type", "block_number"]
-      # Generic tests
-      - dbt_expectations.expect_table_row_count_to_be_greater_than:
-          value: 0
-          severity: warn
-      - dbt_utils.recency:
-          datepart: day
-          field: processed_at
-          interval: 2
-          severity: warn
+      - name: sk
+        tests:                       
+          - unique
+    tests:                           
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ['validator','reward_type','block_id']

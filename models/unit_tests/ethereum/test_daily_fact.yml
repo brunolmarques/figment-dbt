@@ -1,0 +1,13 @@
+version: 2
+
+unit_tests:
+  - name: "validator-day aggregation"
+    model: fct_ethereum_rewards_daily
+    given:
+      - input: stg_ethereum_rewards
+        rows:
+          - {validator: '0x01', reward_type: 'proposal', reward_date: '2024-01-01', reward_eth: 0.1, reward_ts: '2024-01-01 12:00'}
+          - {validator: '0x01', reward_type: 'proposal', reward_date: '2024-01-01', reward_eth: 0.05, reward_ts: '2024-01-01 18:00'}
+    expect:
+      rows:
+        - {validator: '0x01', reward_type: 'proposal', reward_date: '2024-01-01', reward_eth: 0.15, balance_eth_eod: 0.15}

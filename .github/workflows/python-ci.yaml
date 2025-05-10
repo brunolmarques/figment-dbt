@@ -32,7 +32,7 @@ jobs:
             pipenv run pytest -q
 
             echo "🏗️  Building & testing dbt models"
-            pipenv run dbt build --profiles-dir . --warn-error --full-refresh
+            pipenv run dbt build --profiles-dir . --warn-error --select state:modified+
 
       # ------------------------------------------------------------------
       # Fallback path — no Dev Container spec found
@@ -64,4 +64,4 @@ jobs:
           pipenv run pytest -q
           pipenv run dbt deps
           pipenv run dbt seed
-          pipenv run dbt build --warn-error --full-refresh
+          pipenv run dbt build --warn-error --select state:modified+

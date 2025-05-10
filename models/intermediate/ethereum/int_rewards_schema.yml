@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: int_rewards_enriched
+    description: "Adds cumulative running balance per validator."
+    tests:
+      - dbt_expectations.expect_column_values_to_be_between:
+          column: cumulative_reward_eth
+          min_value: 0
+  - name: int_rewards_daily_agg
+    description: "Roll-up of daily validator rewards."

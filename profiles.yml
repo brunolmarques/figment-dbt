@@ -2,7 +2,7 @@ takehome_test:
   outputs:
     dev:
       dbname: figment_db
-      host: 127.0.0.1
+      host: db
       pass: postgres
       port: 5432
       schema: input

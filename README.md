@@ -13,15 +13,16 @@ Minimal dbt + Postgres stack with Dev Container, unit-tests and CI.
    * Postgres service wired to `profiles.yml`
 
 2. When the build finishes the integrated terminal drops you into an
-   activated **Pipenv** environment.
+   **Pipenv** aware environment.
    Run your usual commands:
 
    ```bash
-   pytest -q                       # Python unit-tests
-   dbt build --full-refresh        # seeds → run → test
+   pipenv run pytest -q                       # Python unit-tests
+   pipenv run dbt build --full-refresh        # seeds → run → test
    ```
 
 That’s it—no extra installs; everything is baked into the image.
+Devcontainer also initiates the Postegres DB and runs the `init_db.sh` script.
 
 ---
 
@@ -36,14 +37,13 @@ That’s it—no extra installs; everything is baked into the image.
 ## 🗂️ Key Files
 
 ```
-.devcontainer/   # Dockerfile + devcontainer.json (dependencies baked in)
-docker/          # Postgres build context + init script
-docker-compose.yml
-models/          # staging/ → intermediate/ → marts/
-macros/          # reusable Jinja + generic tests
-tests/           # pytest specs + CSV fixtures
-seeds/
-.github/workflows/ci.yml
+.devcontainer/                # Dockerfile + devcontainer.json (dependencies baked in)
+docker-compose.yml            # Postgres build context
+models/                       # staging/ → intermediate/ → marts/ + Data and Unit tests
+macros/                       # reusable Jinja 
+tests/                        # Singular tests
+seeds/                        # CSVs for small fixed tables used as support tables
+.github/workflows/ci.yml      # Github Actions Continuous Integration workflow
 ```
 
 ---
@@ -51,13 +51,12 @@ seeds/
 ## 🔧 Common Commands
 
 ```bash
-dbt build                        # compile + run + test
-dbt build -s staging.            # only staging layer
-pytest -q                        # run unit-tests
+pipenv run dbt build                        # compile + run + test
+pipenv run dbt build -s staging.            # only staging layer
+pipenv run pytest -q                        # run unit-tests
 ```
 
 Everything is idempotent and atomic—rerun at will.
-
 
 ## Project Structure
 ```
@@ -81,26 +80,47 @@ dbt_project/
 ├── macros/                   # Re-usable SQL macros
 ├── models/                   # Data models
 │   ├── staging/              # Staging cleanse
-│   │   ├── ethereum/
-│   │   │   ├── _staging_ethereum__sources.yml
-│   │   │   ├── stg_ethereum_rewards.sql
-│   │   │   └── stg_ethereum_schema.yml
-│   │   └── staging_generic_tests.yml
+│   │   └── ethereum/
+│   │       ├── _staging_ethereum__sources.yml
+│   │       ├── stg_ethereum_rewards.sql
+│   │       └── stg_ethereum_schema.yml                     # generic data tests + docs
 │   ├── intermediate/         # Intermediate tables
-│   │   ├── ethereum/
-│   │   │   ├── int_ethereum_rewards.sql
-│   │   │   └── int_ethereum__schema.yml
-│   │   └── _intermediate__generic_tests.yml
-│   └── marts/                # Incremental daily model
-│       ├── ethereum/
-│       │   ├── fct_ethereum_rewards_daily.sql
-│       │   └── fct_ethereum_rewards_daily__schema.yml
-│       └── _marts__generic_tests.yml
+│   │   └── ethereum/
+│   │       ├── int_rewards_enriched.sql
+|   |       ├── int_rewards_daily_agg.sql
+│   │       └── int_rewards_schema.yml                      # generic data tests + docs
+│   ├── marts/                # Incremental daily model
+│   |    └── ethereum/
+│   |       ├── fct_ethereum_rewards_daily.sql
+│   |       └── fct_ethereum_rewards_daily_schema.yml      # generic data tests + docs
+|   └── unit_tests/  
 ├── tests/                    # Unit tests
-│   ├── data/                 # CSV fixtures for dbt seed+tests
-│   └── test_rewards.py
+│   └── data/                 # Singular data tests
 ├── seeds/                    # Reference seeds
 ├── snapshots/                # Slowly-changing dimensions
 ├── analyses/                 # Ad-hoc or interview write-ups
 └── README.md                 # How to run locally (dev-container)
 ```
+
+## Why two intermediate layers?
+
+| Layer               | Responsibility                     | Benefit                                                         |
+| ------------------- | ---------------------------------- | --------------------------------------------------------------- |
+| **I1 – enriched**   | Do all *row-level* math once       | Central place for currency/exponent fixes; easier to unit-test  |
+| **I2 – daily_agg**  | Pure *aggregation*                 | Keeps final model thin; reusable for other marts (e.g., weekly) |
+| **Fact table**      | Incremental load & running balance | Smallest possible footprint for the expensive `merge`           |
+
+This separation guarantees:
+
+- Idempotency – rerunning any upstream model never double-counts; unique keys enforce that.
+- Debuggability – it is possible  to demo numbers at each hop.
+- Performance – only one model (ethereum_rewards_daily) is incremental/merged; others are simple selects.
+
+## Materialization Strategy
+
+| Type            | Pros                                          | Cons                                | Best spots                            |
+| --------------- | --------------------------------------------- | ----------------------------------- | ------------------------------------- |
+| **view**        | Zero storage, always fresh                    | Re-computes every read              | `int_rewards_daily_agg`               |
+| **table**       | Fast downstream queries                       | Rebuild cost on `dbt run -m +model` | `stg_ethereum_rewards` and `int_rewards_enriched`                |
+| **incremental** | Adds only new partitions, avoids full rebuild | Extra complexity; needs unique keys | `fact_ethereum_rewards_daily`         |
+| **ephemeral**   | Inlined CTE (no object)                       | Large SQL + no re-use               | Not used – we want inspectable tables |

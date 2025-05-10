@@ -1,8 +1,19 @@
+{{-
+/*
+  ──────────────────────────────────────────────────────────────
+  STAGING - ethereum rewards
+  •  One-to-one with sources.ethereum_rewards_raw
+  •  Cleans types, enforces domain values, explodes exponent,
+     and generates helper keys for later joins/aggregations.
+  •  Materialized as TABLE (immutable, deterministic, tiny).
+  ──────────────────────────────────────────────────────────────
+*/
+-}}
 {{ config(
-    pre_hook = "{{ log_step('Start staging ethereum_rewards') }}",
-    post_hook = "{{ log_step('Finished staging ethereum_rewards') }}",
-    materialized='table',
-    tags=['staging','ethereum', 'staging_generic_tests']
+     materialized = 'table',
+     tags          = ['staging','ethereum'],
+     post_hook     = "ANALYZE {{ this }}",       -- keeps stats fresh for query-planner
+     contract      = true                        -- schema-enforces downstream contracts
 ) }}
 
 with src as (
@@ -10,46 +21,30 @@ with src as (
     select *
     from {{ source('ethereum', 'ethereum_rewards_raw') }}
 
-), renamed as (
+), cleaned as (
 
     select
-        lower(trim(network))              as network,
-        lower(trim(protocol))             as protocol,
-        lower(trim(type))                 as record_type,       -- ‘rewards’ expected
-        lower(trim(reward_type))          as reward_type,
-        lower(trim(validator))            as validator,         -- “address” in spec
-        block::numeric(38,0)              as block_number,
-        {{ reward_wei('claimed_reward_numeric', 'claimed_reward_exp') }}
-                                            as reward_wei,
-        claimed_reward_numeric            as raw_numeric,
+        -- == business columns ==================================================
+        lower(trim(network))                                  as network,
+        lower(trim(protocol))                                 as protocol,
+        lower(trim(reward_type))                              as reward_type,
+        lower(trim(validator))                                as validator,
+        block::bigint                                         as block_id,
+        -- reward value normalised to ETH (numeric(38,18))
+        (claimed_reward_numeric::numeric
+         * power(10::numeric, -claimed_reward_exp::int))      as reward_eth,
+        timestamp                                             as reward_ts,
+        date_trunc('day', timestamp)                          as reward_date,
+
+        -- == metadata ==========================================================
         processed_at,
-        timestamp                         as block_ts
+        {{ dbt_utils.generate_surrogate_key([
+            'validator',
+            'reward_type',
+            'block::text'      -- “mark” field in the brief
+        ]) }}                                                  as sk
     from src
-
-), dedup as (
-
-    select *
-    from (
-        select *,
-               row_number() over (
-                   partition by validator, reward_type, block_number
-                   order by processed_at desc  -- keep most recent ingest
-               ) as rn
-        from renamed
-    ) where rn = 1
-
-), filtered as (
-
-    -- remove unsupported reward_type values early
-    select f.*
-    from dedup f
-    left join {{ ref('reward_type_reference') }} r
-           on f.reward_type = r.reward_type
-    where r.reward_type is not null
-
+    where lower(type) = 'rewards'        -- defensive filter
 )
 
-select
-    *,
-    block_ts::date as reward_date          -- for daily rollups later
-from filtered
+select * from cleaned
