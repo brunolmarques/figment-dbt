@@ -1,0 +1,64 @@
+version: 2
+
+models:
+  - name: stg_ethereum_rewards
+    description: >
+      Staging model for Ethereum validator rewards.
+      One-to-one with sources.ethereum_rewards_raw.
+      Cleans types, enforces domain values, explodes exponent,
+      and generates helper keys for later joins/aggregations.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: network
+        description: "Network identifier (lowercase, trimmed)"
+        data_type: varchar
+        tests: [not_null]
+      - name: protocol
+        description: "Protocol identifier (lowercase, trimmed)"
+        data_type: varchar
+        tests: [not_null]
+      - name: reward_type
+        description: "Type of reward (lowercase, trimmed)"
+        data_type: varchar
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['proposal','attestation','sync_committee','slashing']
+      - name: validator
+        description: "Validator address/index (lowercase, trimmed)"
+        data_type: varchar
+        tests: [not_null]
+      - name: block_id
+        description: "Block number as bigint"
+        data_type: bigint
+        tests: [not_null]
+      - name: reward_wei
+        description: "Reward value in wei (numeric(38,0))"
+        data_type: numeric(38,0)
+        tests: [not_null]
+      - name: reward_eth
+        description: "Reward value in ETH (numeric(38,18))"
+        data_type: numeric(38,18)
+        tests: [not_null]
+      - name: reward_ts
+        description: "Timestamp of the reward"
+        data_type: timestamptz
+        tests: [not_null]
+      - name: reward_date
+        description: "Date of the reward (truncated to day)"
+        data_type: timestamptz
+        tests: [not_null]
+      - name: processed_at
+        description: "When this record was processed"
+        data_type: timestamptz
+        tests: [not_null]
+      - name: sk
+        description: "Surrogate key combining validator, reward_type, and block_id"
+        data_type: varchar
+        tests: [unique]
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            ['validator','reward_type','block_id'] 

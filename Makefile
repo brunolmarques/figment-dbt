@@ -1,4 +1,4 @@
-.PHONY: install deps clean compile run test lint run-test
+.PHONY: install deps clean compile run test lint run-test po
 
 # Install dependencies
 install:
@@ -43,6 +43,10 @@ docs:
 	pipenv run dbt docs generate
 	pipenv run dbt docs serve
 
+# Git push current branch to origin
+po:
+	git push -u origin $$(git branch --show-current)
+
 # Show help
 help:
 	@echo "Available commands:"
@@ -56,4 +60,5 @@ help:
 	@echo "  make lint       - Run dbt linter"
 	@echo "  make reset      - Clean and reinstall everything"
 	@echo "  make docs       - Generate dbt docs and serve"
+	@echo "  make po         - Push current branch to origin"
 	@echo "  make help       - Show this help message" 

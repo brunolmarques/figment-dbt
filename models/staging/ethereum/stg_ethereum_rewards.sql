@@ -28,10 +28,16 @@ with src as (
         lower(trim(validator))                                              as validator,
         block::bigint                                                       as block_id,
         -- reward value normalised to wei (numeric(38,0))
-        {{ reward_wei('claimed_reward_numeric', 'claimed_reward_exp') }}    as reward_wei,
+        coalesce(
+            {{ reward_wei('claimed_reward_numeric', 'claimed_reward_exp') }}, 
+            0::numeric(38,0)
+        )                                                                   as reward_wei,
         -- reward value normalised to ETH (numeric(38,18))
-        {{ reward_wei('claimed_reward_numeric', 'claimed_reward_exp') }} 
-            / 1e18::numeric(38,18)                                          as reward_eth,
+        coalesce(
+            {{ reward_wei('claimed_reward_numeric', 'claimed_reward_exp') }} 
+                / 1e18::numeric(38,18),
+            0::numeric(38,18)
+        )                                                                   as reward_eth,
         timestamp                                                           as reward_ts,
         date_trunc('day', timestamp)                                        as reward_date,
 
@@ -45,6 +51,7 @@ with src as (
         ]) }}                                                  as sk
     from src
     where lower(type) = 'rewards'        -- defensive filter
+        and claimed_reward_numeric is not null
 )
 
 select * from cleaned

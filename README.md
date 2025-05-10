@@ -23,7 +23,6 @@ Minimal dbt + Postgres stack with Dev Container, unit-tests and CI.
    Run your usual commands:
 
    ```bash
-   make test                        # Dbt unit and data tests
    make build                       # seeds → run → test
    make docs                        # Explore lineage: ethereum_rewards_raw ➜ stg_* ➜ int_* ➜ fct_*.
 
@@ -91,12 +90,13 @@ dbt_project/
 │   │   └── ethereum/
 │   │       ├── _staging_ethereum__sources.yml
 │   │       ├── stg_ethereum_rewards.sql
-│   │       └── stg_ethereum_schema.yml                     # generic data tests + docs
+│   │       └── stg_ethereum_rewards_schema.yml            # generic data tests + docs
 │   ├── intermediate/         # Intermediate tables
 │   │   └── ethereum/
 │   │       ├── int_rewards_enriched.sql
+│   │       ├── int_rewards_enriched_schema.sql            # generic data tests + docs
 |   |       ├── int_rewards_daily_agg.sql
-│   │       └── int_rewards_schema.yml                      # generic data tests + docs
+│   │       └── int_rewards_daily_a_schema.yml             # generic data tests + docs
 │   ├── marts/                # Incremental daily model
 │   |    └── ethereum/
 │   |       ├── fct_ethereum_rewards_daily.sql

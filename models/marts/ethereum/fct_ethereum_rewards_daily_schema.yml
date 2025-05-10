@@ -12,28 +12,41 @@ models:
     columns:
       - name: validator
         description: "Beacon-chain validator index/address."
+        data_type: varchar
         tests: [not_null]
       - name: reward_type
         description: "proposal | attestation | sync_committee | slashing"
+        data_type: varchar
         tests:
           - not_null
           - accepted_values:
               values: ['proposal','attestation','sync_committee','slashing']
       - name: reward_date
         description: "UTC calendar date of the reward (partition key)."
+        data_type: timestamptz
         tests: [not_null]
       - name: reward_eth
         description: "Total reward earned on that day, in ETH."
+        data_type: numeric(38,18)
         tests: [not_null]
       - name: balance_eth_eod
         description: "Cumulative balance for the validator at end of day."
-        tests: [not_null]
+        data_type: numeric(38,18)
+        tests: 
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
       - name: reward_wei
         description: "Total reward earned on that day, in wei."
+        data_type: numeric(38,0)
         tests: [not_null]
       - name: balance_wei_eod
         description: "Cumulative balance for the validator at end of day."
-        tests: [not_null]
+        data_type: numeric(38,0)
+        tests: 
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

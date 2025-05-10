@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: int_rewards_daily_agg
+    description: >
+      Intermediate model that aggregates rewards by validator, reward type, and date.
+      Calculates daily totals in both ETH and wei.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: validator
+        description: "Validator address/index"
+        data_type: varchar
+        tests: [not_null]
+      - name: reward_type
+        description: "Type of reward"
+        data_type: varchar
+        tests: [not_null]
+      - name: reward_date
+        description: "Date of the rewards"
+        data_type: timestamptz
+        tests: [not_null]
+      - name: daily_reward_eth
+        description: "Total daily reward in ETH"
+        data_type: numeric(38,18)
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      - name: daily_reward_wei
+        description: "Total daily reward in wei"
+        data_type: numeric(38,0)
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0 

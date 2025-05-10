@@ -1,9 +1,9 @@
 -- Purpose Incremental daily snapshot with a running balance per validator.
 {#
   FACT TABLE: one row per validator-day-reward_type
-  Incremental strategy: “insert_by_period” – only add the *previous* day
-  once the date is fully closed to guarantee “end-of-period” accuracy.
-  - insert_overwrite + date partition → idempotent re-runs and late-arriving data are harmless (always fully overwrite the affected day).
+  Incremental strategy: "delete+insert" – only add the *previous* day
+  once the date is fully closed to guarantee "end-of-period" accuracy.
+  - delete+insert + date partition → idempotent re-runs and late-arriving data are harmless (always fully overwrite the affected day).
   - unique_key keeps Postgres from duplicating rows if the model is re-executed during a CI pipeline.
   - on_schema_change = 'append_new_columns' adds extra measures for schema enforcement/evolution, remove need to run `dbt run --full-refresh`.
 #}
@@ -12,7 +12,7 @@
      materialized = 'incremental',
      unique_key   = ['validator','reward_type','reward_date'],
      partition_by = {'field': 'reward_date', 'data_type': 'date'},
-     incremental_strategy = 'insert_overwrite',
+     incremental_strategy = 'delete+insert',
      on_schema_change = 'append_new_columns',
      tags = ['mart','ethereum']
 ) }}
