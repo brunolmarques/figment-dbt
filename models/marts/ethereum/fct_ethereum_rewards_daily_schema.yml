@@ -8,6 +8,7 @@ models:
     config:
       contract:
         enforced: true          # fails build if columns/types drift
+      on_schema_change: append_new_columns
     columns:
       - name: validator
         description: "Beacon-chain validator index/address."
@@ -25,6 +26,12 @@ models:
         description: "Total reward earned on that day, in ETH."
         tests: [not_null]
       - name: balance_eth_eod
+        description: "Cumulative balance for the validator at end of day."
+        tests: [not_null]
+      - name: reward_wei
+        description: "Total reward earned on that day, in wei."
+        tests: [not_null]
+      - name: balance_wei_eod
         description: "Cumulative balance for the validator at end of day."
         tests: [not_null]
     tests:

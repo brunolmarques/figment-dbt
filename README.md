@@ -23,8 +23,11 @@ Minimal dbt + Postgres stack with Dev Container, unit-tests and CI.
    Run your usual commands:
 
    ```bash
-   pipenv run pytest -q                       # Python unit-tests
-   pipenv run dbt build --full-refresh        # seeds → run → test
+   pipenv run dbt test                        # Dbt unit and data tests
+   pipenv run dbt build                       # seeds → run → test
+   pipenv run dbt docs generate 
+      && pipenv run dbt docs serve            # Explore lineage: ethereum_rewards_raw ➜ stg_* ➜ int_* ➜ fct_*.
+
    ```
 
 That's it—no extra installs; everything is baked into the image.
@@ -108,7 +111,7 @@ dbt_project/
 └── README.md                 # How to run locally (dev-container)
 ```
 
-## Why two intermediate layers?
+## Why Intermediate Layer?
 
 | Layer               | Responsibility                     | Benefit                                                         |
 | ------------------- | ---------------------------------- | --------------------------------------------------------------- |
