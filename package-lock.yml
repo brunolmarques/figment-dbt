@@ -7,6 +7,6 @@ packages:
   version: 0.10.4
 - package: dbt-labs/codegen
   version: 0.12.1
-- package: godatadriven/dbt_date
-  version: 0.7.2
+- package: calogica/dbt_date
+  version: 0.10.1
 sha1_hash: 7e174edb86981277f9ba643d6cd2a63ba508c7f5

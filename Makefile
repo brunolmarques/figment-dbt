@@ -26,7 +26,6 @@ run:
 
 # Run dbt tests
 test:
-	pipenv run dbt run
 	pipenv run dbt test
 
 # Run dbt linter

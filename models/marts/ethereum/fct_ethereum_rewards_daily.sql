@@ -7,7 +7,6 @@
   - unique_key keeps Postgres from duplicating rows if the model is re-executed during a CI pipeline.
   - on_schema_change = 'append_new_columns' adds extra measures for schema enforcement/evolution, remove need to run `dbt run --full-refresh`.
 #}
-{% set yest = dbt_date.today_back(1,'day') %}
 
 {{ config(
      materialized = 'incremental',
@@ -23,7 +22,7 @@ with src as (
     select *
     from {{ ref('int_rewards_daily_agg') }}
     {% if is_incremental() %}
-        where reward_date = {{ yest }}
+      where reward_date = (current_date - interval '1 day')::date   -- yesterday
     {% endif %}
 
 )
