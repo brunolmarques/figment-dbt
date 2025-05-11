@@ -43,9 +43,9 @@ docs:
 	pipenv run dbt docs generate
 	pipenv run dbt docs serve
 
-# Git push current branch to origin
-po:
-	git push -u origin $$(git branch --show-current)
+# Connect to Postgres
+db-connect:
+	psql "postgresql://postgres:postgres@db:5432/figment_db"
 
 # Show help
 help:
@@ -60,5 +60,5 @@ help:
 	@echo "  make lint       - Run dbt linter"
 	@echo "  make reset      - Clean and reinstall everything"
 	@echo "  make docs       - Generate dbt docs and serve"
-	@echo "  make po         - Push current branch to origin"
+	@echo "  make db-connect - Connect to Postgres"
 	@echo "  make help       - Show this help message" 

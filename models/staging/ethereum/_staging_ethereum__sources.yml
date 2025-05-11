@@ -23,12 +23,12 @@ sources:
             data_type: text
             description: The reward type. Accepted values ['proposal', 'attestation', 'sync_committee', 'slashing'].
 
-          - name: validator
+          - name: address
             data_type: text
             description: The validator address receiving the reward.
 
-          - name: block
-            data_type: numeric(38,0)
+          - name: mark
+            data_type: bigint
             description: The block number when the rewards was issued.
 
           - name: claimed_reward_currency

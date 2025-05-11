@@ -13,6 +13,10 @@ models:
         description: "Validator address/index"
         data_type: varchar
         tests: [not_null]
+      - name: currency
+        description: "Currency of the reward"
+        data_type: varchar
+        tests: [not_null]
       - name: reward_type
         description: "Type of reward"
         data_type: varchar

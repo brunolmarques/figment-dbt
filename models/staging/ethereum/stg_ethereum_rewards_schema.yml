@@ -30,9 +30,13 @@ models:
         description: "Validator address/index (lowercase, trimmed)"
         data_type: varchar
         tests: [not_null]
-      - name: block_id
-        description: "Block number as bigint"
+      - name: mark
+        description: "Mark number as bigint"
         data_type: bigint
+        tests: [not_null]
+      - name: currency
+        description: "Currency of the reward (lowercase, trimmed)"
+        data_type: varchar
         tests: [not_null]
       - name: reward_wei
         description: "Reward value in wei (numeric(38,0))"
@@ -55,10 +59,10 @@ models:
         data_type: timestamptz
         tests: [not_null]
       - name: sk
-        description: "Surrogate key combining validator, reward_type, and block_id"
+        description: "Surrogate key combining validator, reward_type, and mark"
         data_type: varchar
         tests: [unique]
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            ['validator','reward_type','block_id'] 
+            ['validator','reward_type','mark'] 

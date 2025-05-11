@@ -25,29 +25,23 @@ with src as (
         lower(trim(network))                                                as network,
         lower(trim(protocol))                                               as protocol,
         lower(trim(reward_type))                                            as reward_type,
-        lower(trim(validator))                                              as validator,
-        block::bigint                                                       as block_id,
+        lower(trim(address))                                                as validator,
+        mark::bigint                                                        as mark,
+        lower(trim(claimed_reward_currency))                                as currency,
         -- reward value normalised to wei (numeric(38,0))
-        coalesce(
-            {{ reward_wei('claimed_reward_numeric', 'claimed_reward_exp') }}, 
-            0::numeric(38,0)
-        )                                                                   as reward_wei,
+        {{ reward_wei('claimed_reward_numeric', 'claimed_reward_exp') }}    as reward_wei,
         -- reward value normalised to ETH (numeric(38,18))
-        coalesce(
-            {{ reward_wei('claimed_reward_numeric', 'claimed_reward_exp') }} 
-                / 1e18::numeric(38,18),
-            0::numeric(38,18)
-        )                                                                   as reward_eth,
+        {{ reward_wei('claimed_reward_numeric', 'claimed_reward_exp') }} 
+                / 1e18::numeric(38,18)                                      as reward_eth,
         timestamp                                                           as reward_ts,
         date_trunc('day', timestamp)                                        as reward_date,
 
         -- == metadata ===================================================================
         processed_at,
-        -- "mark" field in the brief
         {{ dbt_utils.generate_surrogate_key([
             'validator',
             'reward_type',
-            'block::text'
+            'mark::text'
         ]) }}                                                  as sk
     from src
     where lower(type) = 'rewards'        -- defensive filter

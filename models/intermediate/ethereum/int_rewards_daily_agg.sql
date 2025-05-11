@@ -8,7 +8,8 @@ select
     validator,
     reward_type,
     reward_date,
-    coalesce(sum(reward_eth), 0)              as daily_reward_eth,
-    coalesce(sum(reward_wei),  0)             as daily_reward_wei
+    currency,
+    sum(reward_eth)              as daily_reward_eth,
+    sum(reward_wei)              as daily_reward_wei
 from {{ ref('stg_ethereum_rewards') }}
-group by 1,2,3
+group by 1,2,3,4
