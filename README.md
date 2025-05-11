@@ -12,7 +12,7 @@ Minimal dbt + Postgres stack with Dev Container, unit-tests and CI.
 - Docker Compose
 - Port 5432 available for PostgreSQL
 
-1. Press **F1 → "Dev Containers: Reopen in Container"** or **select the icon on the left bottom corner of VS Code → "Open in Container"**  
+1. Press **F1 → "Dev Containers: Reopen in Container"** or **select the icon with two arrows on the left bottom corner of VS Code → "Open in Container"**  
    VS Code builds `.devcontainer/Dockerfile`, which already includes:
 
    * Python 3.11, **pipenv**, dbt 1.7 +, pytest
@@ -23,8 +23,8 @@ Minimal dbt + Postgres stack with Dev Container, unit-tests and CI.
    Run your usual commands:
 
    ```bash
-   pipenv run pytest -q                       # Python unit-tests
-   pipenv run dbt build --full-refresh        # seeds → run → test
+   make build                       # seeds → run → test
+   make test                        # Run dbt tests
    ```
 
 That's it—no extra installs; everything is baked into the image.
@@ -57,9 +57,13 @@ seeds/                        # CSVs for small fixed tables used as support tabl
 ## 🔧 Common Commands
 
 ```bash
-pipenv run dbt build                        # compile + run + test
-pipenv run dbt build -s staging.            # only staging layer
-pipenv run pytest -q                        # run unit-tests
+make build                       # seeds → run → test
+make test                        # Run dbt tests
+make run                         # Run dbt models
+make docs                        # Explore lineage: ethereum_rewards_raw ➜ stg_* ➜ int_* ➜ fct_*.
+make lint                        # Linst python and sql code
+make deps                        # Install dbt dependencies
+make db-connet                   # Connects to the running Postgres
 ```
 
 Everything is idempotent and atomic—rerun at will.
@@ -89,12 +93,13 @@ dbt_project/
 │   │   └── ethereum/
 │   │       ├── _staging_ethereum__sources.yml
 │   │       ├── stg_ethereum_rewards.sql
-│   │       └── stg_ethereum_schema.yml                     # generic data tests + docs
+│   │       └── stg_ethereum_rewards_schema.yml            # generic data tests + docs
 │   ├── intermediate/         # Intermediate tables
 │   │   └── ethereum/
 │   │       ├── int_rewards_enriched.sql
+│   │       ├── int_rewards_enriched_schema.sql            # generic data tests + docs
 |   |       ├── int_rewards_daily_agg.sql
-│   │       └── int_rewards_schema.yml                      # generic data tests + docs
+│   │       └── int_rewards_daily_a_schema.yml             # generic data tests + docs
 │   ├── marts/                # Incremental daily model
 │   |    └── ethereum/
 │   |       ├── fct_ethereum_rewards_daily.sql
@@ -108,7 +113,7 @@ dbt_project/
 └── README.md                 # How to run locally (dev-container)
 ```
 
-## Why two intermediate layers?
+## Why Intermediate Layer?
 
 | Layer               | Responsibility                     | Benefit                                                         |
 | ------------------- | ---------------------------------- | --------------------------------------------------------------- |
@@ -130,3 +135,6 @@ This separation guarantees:
 | **table**       | Fast downstream queries                       | Rebuild cost on `dbt run -m +model` | `stg_ethereum_rewards` and `int_rewards_enriched`                |
 | **incremental** | Adds only new partitions, avoids full rebuild | Extra complexity; needs unique keys | `fact_ethereum_rewards_daily`         |
 | **ephemeral**   | Inlined CTE (no object)                       | Large SQL + no re-use               | Not used – we want inspectable tables |
+
+For now `int_rewards_daily_agg` is a view becasue several marts could depend on the same cleaned aggregate, and the workload patterns are not clear yet.
+If `int_rewards_daily_agg` becomes large and read-many/write-few—e.g., dozens of marts query it or analysts hit it ad-hoc—then it should be materialzied to a table.

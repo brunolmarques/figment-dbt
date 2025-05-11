@@ -1,0 +1,71 @@
+version: 2
+
+models:
+  - name: int_rewards_enriched
+    description: >
+      Intermediate model that enriches rewards with cumulative totals.
+      Calculates running balances in both ETH and wei.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: network
+        description: "Network identifier"
+        data_type: varchar
+        tests: [not_null]
+      - name: protocol
+        description: "Protocol identifier"
+        data_type: varchar
+        tests: [not_null]
+      - name: validator
+        description: "Validator address/index"
+        data_type: varchar
+        tests: [not_null]
+      - name: reward_type
+        description: "Type of reward"
+        data_type: varchar
+        tests: [not_null]
+      - name: currency
+        description: "Currency of the reward"
+        data_type: varchar
+        tests: [not_null]
+      - name: mark
+        description: "Block number"
+        data_type: bigint
+        tests: [not_null]
+      - name: reward_ts
+        description: "Timestamp of the reward"
+        data_type: timestamptz
+        tests: [not_null]
+      - name: reward_date
+        description: "Date of the reward"
+        data_type: timestamptz
+        tests: [not_null]
+      - name: reward_eth
+        description: "Reward in ETH"
+        data_type: numeric(38,18)
+        tests: [not_null]
+      - name: reward_wei
+        description: "Reward in wei"
+        data_type: numeric(38,0)
+        tests: [not_null]
+      - name: processed_at
+        description: "When this record was processed"
+        data_type: timestamptz
+        tests: [not_null]
+      - name: sk
+        description: "Surrogate key"
+        data_type: varchar
+        tests: [unique]
+      - name: cumulative_reward_eth
+        description: "Cumulative reward in ETH"
+        data_type: numeric(38,18)
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      - name: cumulative_reward_wei
+        description: "Cumulative reward in wei"
+        data_type: numeric(38,0)
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0 

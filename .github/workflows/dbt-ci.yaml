@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ "**" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+
+      # Spin-up the Dev Container (and the docker-compose stack it references),
+      # then run our test commands *inside* that container.
+      - name: 🐳 Build & test in Dev Container
+        uses: devcontainers/ci@v0.3
+        with:
+          runCmd: |
+            set -euo pipefail           # fail fast on any error
+
+            echo "🔍 Python formatting (black --check)"
+            # Fail if any file would be reformatted
+            pipenv run black --check --diff . --exclude "(dbt_packages|\.venv)"
+
+            echo "🏗️ Building & 🧪 testing dbt models"
+            pipenv run dbt deps
+            pipenv run dbt seed        # load any seed files
+            pipenv run dbt build

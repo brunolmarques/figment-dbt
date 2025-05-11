@@ -8,26 +8,53 @@ models:
     config:
       contract:
         enforced: true          # fails build if columns/types drift
+      on_schema_change: append_new_columns
+    freshness:
+      loaded_at_field: reward_date
+      warn_after: {count: 2, period: day}
+    sources:
+      - name: ethereum.ethereum_rewards_raw    # fully-qualified source
+        description: "Raw source table of validator rewards."
     columns:
       - name: validator
         description: "Beacon-chain validator index/address."
+        data_type: varchar
         tests: [not_null]
       - name: reward_type
         description: "proposal | attestation | sync_committee | slashing"
+        data_type: varchar
         tests:
           - not_null
           - accepted_values:
               values: ['proposal','attestation','sync_committee','slashing']
       - name: reward_date
         description: "UTC calendar date of the reward (partition key)."
+        data_type: timestamptz
         tests: [not_null]
       - name: reward_eth
         description: "Total reward earned on that day, in ETH."
+        data_type: numeric(38,18)
         tests: [not_null]
       - name: balance_eth_eod
         description: "Cumulative balance for the validator at end of day."
+        data_type: numeric(38,18)
+        tests: 
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      - name: reward_wei
+        description: "Total reward earned on that day, in wei."
+        data_type: numeric(38,0)
         tests: [not_null]
+      - name: balance_wei_eod
+        description: "Cumulative balance for the validator at end of day."
+        data_type: numeric(38,0)
+        tests: 
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             ['validator','reward_type','reward_date']
+

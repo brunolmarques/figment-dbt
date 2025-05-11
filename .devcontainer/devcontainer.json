@@ -18,7 +18,8 @@
     "vscode": {
       "extensions": [
         "ms-python.python",
-        "bastienboutonnet.vscode-dbt"
+        "bastienboutonnet.vscode-dbt",
+        "sqlfluff.sqlfluff"
       ]
     }
   }
