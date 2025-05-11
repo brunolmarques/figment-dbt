@@ -24,6 +24,7 @@ Minimal dbt + Postgres stack with Dev Container, unit-tests and CI.
 
    ```bash
    make build                       # seeds → run → test
+   make test                        # Run dbt tests
    make docs                        # Explore lineage: ethereum_rewards_raw ➜ stg_* ➜ int_* ➜ fct_*.
 
    ```

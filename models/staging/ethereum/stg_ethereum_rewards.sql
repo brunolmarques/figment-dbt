@@ -33,19 +33,23 @@ with src as (
         -- reward value normalised to ETH (numeric(38,18))
         {{ reward_wei('claimed_reward_numeric', 'claimed_reward_exp') }} 
                 / 1e18::numeric(38,18)                                      as reward_eth,
-        timestamp                                                           as reward_ts,
-        date_trunc('day', timestamp)                                        as reward_date,
+        timestamp::timestamptz                                              as reward_ts,
+        date_trunc('day', timestamp::timestamptz)                           as reward_date,
 
         -- == metadata ===================================================================
-        processed_at,
+        processed_at::timestamptz                                           as processed_at,
         {{ dbt_utils.generate_surrogate_key([
-            'validator',
+            'address',
             'reward_type',
             'mark::text'
         ]) }}                                                  as sk
     from src
     where lower(type) = 'rewards'        -- defensive filter
         and claimed_reward_numeric is not null
+), deduped as (
+    select distinct on (validator, reward_type, mark) *
+    from cleaned
+    order by validator, reward_type, mark, processed_at desc
 )
 
-select * from cleaned
+select * from deduped

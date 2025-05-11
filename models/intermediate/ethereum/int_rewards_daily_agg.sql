@@ -12,4 +12,5 @@ select
     sum(reward_eth)              as daily_reward_eth,
     sum(reward_wei)              as daily_reward_wei
 from {{ ref('stg_ethereum_rewards') }}
+where reward_eth > 0  -- Only include positive rewards
 group by 1,2,3,4

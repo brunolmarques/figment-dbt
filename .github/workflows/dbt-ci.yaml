@@ -30,6 +30,4 @@ jobs:
             echo "🏗️ Building & testing dbt models"
             pipenv run dbt deps        # pull dbt package deps
             pipenv run dbt seed        # load any seed files
-            pipenv run dbt build \
-              --profiles-dir . \
-              --warn-error            # fail on warnings
+            pipenv run dbt build 

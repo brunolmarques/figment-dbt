@@ -5,7 +5,10 @@
 #}
 {{ config(materialized='table', tags=['intermediate','ethereum']) }}
 
-with base as ( select * from {{ ref('stg_ethereum_rewards') }} )
+with base as ( 
+    select * from {{ ref('stg_ethereum_rewards') }}
+    where reward_eth > 0  -- Only include positive rewards
+)
 
 , enriched as (
     select

@@ -5,7 +5,7 @@
   once the date is fully closed to guarantee "end-of-period" accuracy.
   - delete+insert + date partition → idempotent re-runs and late-arriving data are harmless (always fully overwrite the affected day).
   - unique_key keeps Postgres from duplicating rows if the model is re-executed during a CI pipeline.
-  - on_schema_change = 'append_new_columns' adds extra measures for schema enforcement/evolution, remove need to run `dbt run --full-refresh`.
+  - on_schema_change = 'append_new_columns' adds extra measures for schema enforcement/evolution.
 #}
 
 {{ config(

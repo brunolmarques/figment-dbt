@@ -25,7 +25,11 @@ models:
         description: "Type of reward"
         data_type: varchar
         tests: [not_null]
-      - name: block_id
+      - name: currency
+        description: "Currency of the reward"
+        data_type: varchar
+        tests: [not_null]
+      - name: mark
         description: "Block number"
         data_type: bigint
         tests: [not_null]
