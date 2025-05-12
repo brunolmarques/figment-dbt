@@ -12,9 +12,6 @@ models:
     freshness:
       loaded_at_field: reward_date
       warn_after: {count: 2, period: day}
-    sources:
-      - name: ethereum.ethereum_rewards_raw    # fully-qualified source
-        description: "Raw source table of validator rewards."
     columns:
       - name: validator
         description: "Beacon-chain validator index/address."

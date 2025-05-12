@@ -14,7 +14,5 @@ WORKDIR /workspace
 # Avoid interactive prompts & ensure deterministic builds
 ENV PIPENV_VENV_IN_PROJECT=1
 
-COPY .sqlfluff /workspace/
-
 COPY .devcontainer/git-aliases.conf /etc/git-aliases.conf
 RUN git config --system include.path /etc/git-aliases.conf

@@ -33,4 +33,4 @@ jobs:
             echo "🏗️ Building & 🧪 testing dbt models"
             pipenv run dbt deps
             pipenv run dbt seed        # load any seed files
-            pipenv run dbt build
+            pipenv run dbt build --full-refresh

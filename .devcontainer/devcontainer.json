@@ -19,8 +19,8 @@
       "extensions": [
         "ms-python.python",
         "bastienboutonnet.vscode-dbt",
-        "sqlfluff.sqlfluff"
       ]
     }
-  }
+  },
+  "shutdownAction": "stopCompose"
 }

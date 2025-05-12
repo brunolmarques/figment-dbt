@@ -124,7 +124,7 @@ docs/gatsby/**/public
 docs/next/.mdx-data
 docs/next/public/sitemap.xml
 # Data
-data/*
+# data/*
 data/local.duckdb
 data/local.duckdb.wal
 # Don't ignore data folders in examples

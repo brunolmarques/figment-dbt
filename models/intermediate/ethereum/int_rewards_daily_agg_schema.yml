@@ -25,10 +25,6 @@ models:
         description: "Date of the rewards"
         data_type: timestamptz
         tests: [not_null]
-      - name: processed_at
-        description: "Timestamp when the data was ingested by a micro service and save as a CSV"
-        data_type: timestamptz
-        tests: [not_null]
       - name: daily_reward_eth
         description: "Total daily reward in ETH"
         data_type: numeric(38,18)

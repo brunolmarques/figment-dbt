@@ -18,7 +18,7 @@ compile:
 
 # Build dbt models
 build:
-	pipenv run dbt build
+	pipenv run dbt build --full-refresh
 
 # Run dbt models
 run:
